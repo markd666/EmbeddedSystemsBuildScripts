@@ -1,5 +1,6 @@
-load("//AvrToolchain:cc_toolchain/third_party.bzl", "add_compiler_option_if_supported",
-
+load(
+    "//AvrToolchain:cc_toolchain/third_party.bzl",
+    "add_compiler_option_if_supported",
     "get_cxx_inc_directories",
 )
 
@@ -41,6 +42,8 @@ def _get_treat_warnings_as_errors_flags(repository_ctx, gcc):
         ))
     return supported_flags
 
+# Create cc_toolchain_config.bzl in build directory based off template
+# it contains compiler flags / optimisation flags
 def create_cc_toolchain_config_rule(repository_ctx, gcc):
     repository_ctx.template(
         "cc_toolchain/cc_toolchain_config.bzl",
@@ -50,6 +53,13 @@ def create_cc_toolchain_config_rule(repository_ctx, gcc):
         },
     )
 
+# Inside funcion the cc_toolchain_config() Adds additional layer of configurability for C++ rules. Encapsulates
+#  platform-dependent specifics of C++ actions through features and action configs. It is used to configure
+#  the C++ toolchain, and later on for command line construction. Replaces the functionality of CROSSTOOL file
+#
+# cc_toolchain() - Represents a C++ toolchain - empty values because cc_oolchain_config contains info
+#
+# cc_toolchain_config that is loaded from cc_toolchain_config.bzl has compiler options and flags
 def create_toolchain_definitions(tools, mcus, repository_ctx):
     cc_toolchain_template = """load("@AvrToolchain//cc_toolchain:cc_toolchain_config.bzl",
 "cc_toolchain_config")
@@ -106,13 +116,15 @@ toolchain(
     for mcu in mcus:
         cc_toolchain_template += mcu_specific.format(
             mcu = mcu,
-            cxx_include_dirs = get_cxx_inc_directories(repository_ctx, tools["gcc"]),
+            cxx_include_dirs = get_cxx_inc_directories(repository_ctx, tools["g++"]),
             host_system_name = repository_ctx.os.name,
             **tools
         )
 
     return cc_toolchain_template
 
+# Create a BUILD file in cc_toolchain that contains all a cc_toolchain/config for all possible mcu that are listed in
+# plaforms/avr_mcu_list.bzl
 def create_cc_toolchain_package(repository_ctx, paths):
     tools = avr_tools(repository_ctx)
     mcu_list = repository_ctx.attr.mcu_list
@@ -124,7 +136,7 @@ def create_cc_toolchain_package(repository_ctx, paths):
             repository_ctx,
         ),
     )
-    cc_toolchain_rule_template = paths[
-        "@EmbeddedSystemsBuildScripts//AvrToolchain:cc_toolchain/cc_toolchain_config.bzl.tpl"
-    ]
-    create_cc_toolchain_config_rule(repository_ctx, tools["gcc"])
+    cc_toolchain_rule_template = paths["@EmbeddedSystemsBuildScripts//AvrToolchain:cc_toolchain/cc_toolchain_config.bzl.tpl"]
+    create_cc_toolchain_config_rule(repository_ctx, tools["g++"])
+
+#create_cc_toolchain_config_rule(repository_ctx, tools["gcc"])

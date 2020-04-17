@@ -50,7 +50,7 @@ def new_feature(name, flags, enabled = False):
         ACTION_NAMES.assemble,
         ACTION_NAMES.preprocess_assemble,
         ACTION_NAMES.linkstamp_compile,
-        ACTION_NAMES.c_compile,
+        #ACTION_NAMES.c_compile,
         ACTION_NAMES.cpp_compile,
         ACTION_NAMES.cpp_header_parsing,
         ACTION_NAMES.cpp_module_compile,
@@ -86,11 +86,13 @@ def _impl(ctx):
     ]
     opt_feature = new_feature("opt", __CODE_SIZE_OPTIMIZATION_COPTS)
     fastbuild_feature = new_feature("fastbuild", ["-O2"])
-    c99_feature = new_feature("gnu99", ["-std=gnu99"], True)
+    #c99_feature = new_feature("gnu99", ["-std=gnu99"], True)
+    cplusplus14 = new_feature("c++14", ["-std=c++14"], True)
     convert_warnings_to_errors = new_feature("treat_warnings_as_errors", @warnings_as_errors@)
-    features = [opt_feature, fastbuild_feature, c99_feature, convert_warnings_to_errors]
+    features = [opt_feature, fastbuild_feature, cplusplus14, convert_warnings_to_errors]
     if ctx.attr.mcu != "none":
         features.append(new_feature("mcu", ["-mmcu=" + ctx.attr.mcu], True))
+    # returns a 'CcToolchainConfigInfo' provider
     return [cc_common.create_cc_toolchain_config_info(
         ctx = ctx,
         toolchain_identifier = ctx.attr.toolchain_identifier,

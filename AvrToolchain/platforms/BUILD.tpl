@@ -107,4 +107,14 @@ platform(
 )
 
 
+platform(
+    name = "pcb_v_2_1",
+    constraint_values = [
+        "@AvrToolchain//platforms/mcu:at90can128",
+        "@AvrToolchain//platforms/cpu_frequency:16mhz",
+        "@AvrToolchain//platforms/board_id:pcb_v_2_1",
+    ],
+    parents = [":avr_common"]
+)
+
 

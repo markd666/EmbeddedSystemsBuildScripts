@@ -3,16 +3,24 @@ load("@AvrToolchain//:helpers.bzl", "default_embedded_binary")
 
 default_embedded_binary(
     name = "main",
-    srcs = ["main.c"],
-    copts = cpu_frequency_flag(),
-)
-
-
-platform(
-    name = "MyPlatform",
-    constraint_values = [
-        "@AvrToolchain//platforms/mcu:atmega328p",
-        "@AvrToolchain//platforms/cpu_frequency:8mhz"
+    srcs = [
+        "main.cpp",
     ],
-    parents = ["@AvrToolchain//platforms:avr_common"]
+    deps = [":testlib"],
 )
+
+cc_library(
+    name = "testlib",
+    hdrs = [
+        "test.hpp",
+    ],
+)
+
+#platform(
+#    name = "MyPlatform",
+#    constraint_values = [
+#        "@AvrToolchain//platforms/mcu:atmega328p",
+#        "@AvrToolchain//platforms/cpu_frequency:8mhz",
+#    ],
+#    parents = ["@AvrToolchain//platforms:avr_common"],
+#)
